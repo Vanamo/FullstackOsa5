@@ -4,6 +4,8 @@ import blogService from './services/blogs'
 import loginService from './services/login'
 import CreateBlog from './components/CreateBlog'
 import Notification from './components/Notification'
+import LoginForm from './components/Login'
+import Togglable from './components/Togglable'
 import './index.css'
 
 class App extends React.Component {
@@ -72,35 +74,25 @@ class App extends React.Component {
 
   render() {
 
+    const createBlog = () => (
+      <Togglable buttonLabel="create">
+        <CreateBlog
+          helpCreateBlog={this.helpCreateBlog}
+        />
+      </Togglable>
+    )
+
     if (this.state.user === null) {
       return (
         <div>
-
           <Notification.error message={this.state.error}/>
 
-          <h2>Kirjaudu</h2>
-
-          <form onSubmit={this.login}>
-            <div>
-              käyttäjätunnus
-              <input
-                type="text"
-                name="username"
-                value={this.state.username}
-                onChange={this.handleLoginFieldChange}
-              />
-            </div>
-            <div>
-              salasana
-              <input
-                type="password"
-                name="password"
-                value={this.state.password}
-                onChange={this.handleLoginFieldChange}
-              />
-            </div>
-            <button type="submit">kirjaudu</button>
-          </form>
+          <LoginForm
+            handleSubmit={this.login}
+            handleChange={this.handleLoginFieldChange}
+            username={this.state.username}
+            password={this.state.password}
+          />
         </div>
       )
     }
@@ -120,7 +112,7 @@ class App extends React.Component {
           )}
         </div>
         <div>
-          <CreateBlog helpCreateBlog={this.helpCreateBlog}/>
+          {createBlog()}
         </div>
       </div>
     )
