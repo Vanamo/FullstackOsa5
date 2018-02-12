@@ -22,11 +22,11 @@ class CreateBlog extends React.Component {
     blogService
       .create(blogObject)
       .then(newBlog => {
+        this.props.helpCreateBlog(newBlog)
         this.setState({
           title: '',
           author: '',
-          url: '',
-          blogs: this.props.blogs.concat(newBlog)
+          url: ''
         })
       })
   }

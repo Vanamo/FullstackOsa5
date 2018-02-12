@@ -3,6 +3,8 @@ import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import CreateBlog from './components/CreateBlog'
+import Notification from './components/Notification'
+import './index.css'
 
 class App extends React.Component {
   constructor(props) {
@@ -11,7 +13,9 @@ class App extends React.Component {
       blogs: [],
       user: null,
       username: '',
-      password: ''
+      password: '',
+      success: null,
+      error: null
     }
   }
 
@@ -28,6 +32,13 @@ class App extends React.Component {
     }
   }
 
+  helpCreateBlog = (newBlog) => {
+    this.setState({
+      blogs: this.state.blogs.concat(newBlog),
+      success: `a new blog ${newBlog.title} by ${newBlog.author} added`
+    })
+  }
+
   login = async (event) => {
     event.preventDefault()
     try {
@@ -41,7 +52,12 @@ class App extends React.Component {
 
       this.setState({ username: '', password: '', user })
     } catch (exception) {
-      console.log('virheellinen käyttäjätunnus tai salasana')
+      this.setState({
+        error: 'Wrong username or password'
+      })
+      setTimeout(() => {
+        this.setState({ error: null })
+      }, 5000)
     }
   }
 
@@ -59,6 +75,9 @@ class App extends React.Component {
     if (this.state.user === null) {
       return (
         <div>
+
+          <Notification.error message={this.state.error}/>
+
           <h2>Kirjaudu</h2>
 
           <form onSubmit={this.login}>
@@ -88,6 +107,10 @@ class App extends React.Component {
 
     return (
       <div>
+        <h1>Blogs</h1>
+
+        <Notification.success message={this.state.success}/>
+
         <div>
           <p>{this.state.user.name} logged in
           <button onClick={this.handleLogout}>logout</button></p>
@@ -97,7 +120,7 @@ class App extends React.Component {
           )}
         </div>
         <div>
-          <CreateBlog blogs={this.state.blogs}/>
+          <CreateBlog helpCreateBlog={this.helpCreateBlog}/>
         </div>
       </div>
     )
