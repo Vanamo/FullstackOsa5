@@ -18,7 +18,14 @@ class App extends React.Component {
     blogService.getAll().then(blogs =>
       this.setState({ blogs })
     )
-  } 
+
+    const loggedUserJSON = window.localStorage.getItem('loggedUser')
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON)
+      this.setState({ user })
+      blogService.setToken(user.token)
+    }
+  }
 
   login = async (event) => {
     event.preventDefault()
@@ -28,7 +35,10 @@ class App extends React.Component {
         password: this.state.password
       })
 
-      this.setState({ username: '', password: '', user})
+      window.localStorage.setItem('loggedUser', JSON.stringify(user))
+      blogService.setToken(user.token)
+
+      this.setState({ username: '', password: '', user })
     } catch (exception) {
       console.log('virheellinen käyttäjätunnus tai salasana')
     }
@@ -38,53 +48,54 @@ class App extends React.Component {
     this.setState({ [event.target.name]: event.target.value })
   }
 
+  handleLogout = () => {
+    window.localStorage.clear()
+    this.setState({ user: null })
+  }
+
   render() {
 
-    const loginForm = () => (
-      <div>
-        <h2>Kirjaudu</h2>
+    if (this.state.user === null) {
+      return (
+        <div>
+          <h2>Kirjaudu</h2>
 
-        <form onSubmit={this.login}>
-          <div>
-            käyttäjätunnus
-            <input
-              type="text"
-              name="username"
-              value={this.state.username}
-              onChange={this.handleLoginFieldChange}
-            />
-          </div>
-          <div>
-            salasana
-            <input  
-              type="password"
-              name="password"
-              value={this.state.password}
-              onChange={this.handleLoginFieldChange}
-            />
-          </div>
-          <button type="submit">kirjaudu</button>
-        </form>
-      </div>
-    )
+          <form onSubmit={this.login}>
+            <div>
+              käyttäjätunnus
+              <input
+                type="text"
+                name="username"
+                value={this.state.username}
+                onChange={this.handleLoginFieldChange}
+              />
+            </div>
+            <div>
+              salasana
+              <input
+                type="password"
+                name="password"
+                value={this.state.password}
+                onChange={this.handleLoginFieldChange}
+              />
+            </div>
+            <button type="submit">kirjaudu</button>
+          </form>
+        </div>
+      )
+    }
 
     return (
       <div>
-
-        {this.state.user === null ?
-          loginForm() :
-          <div>
-            <p>{this.state.user.name} logged in</p>
-            <h2>blogs</h2>
-            {this.state.blogs.map(blog => 
-            <Blog key={blog._id} blog={blog}/>
-            )}
-          </div>
-        }
-
+        <p>{this.state.user.name} logged in
+        <button onClick={this.handleLogout}>logout</button></p>
+        <h2>blogs</h2>
+        {this.state.blogs.map(blog =>
+          <Blog key={blog.id} blog={blog} />
+        )}
       </div>
-    );
+    )
   }
 }
 
-export default App;
+export default App
