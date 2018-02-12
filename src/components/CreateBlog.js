@@ -1,4 +1,5 @@
 import React from 'react'
+import blogService from '../services/blogs'
 
 class CreateBlog extends React.Component {
   constructor(props) {
@@ -17,6 +18,17 @@ class CreateBlog extends React.Component {
       author: this.state.author,
       url: this.state.url
     }
+
+    blogService
+      .create(blogObject)
+      .then(newBlog => {
+        this.setState({
+          title: '',
+          author: '',
+          url: '',
+          blogs: this.props.blogs.concat(newBlog)
+        })
+      })
   }
 
   handleBlogFieldChange = (event) => {
@@ -32,6 +44,8 @@ class CreateBlog extends React.Component {
           <div>
             title
             <input
+              type="text"
+              name="title"
               value={this.state.title}
               onChange={this.handleBlogFieldChange}
             />
@@ -39,6 +53,8 @@ class CreateBlog extends React.Component {
           <div>
             author
             <input
+              type="text"
+              name="author"
               value={this.state.author}
               onChange={this.handleBlogFieldChange}
             />
@@ -46,11 +62,13 @@ class CreateBlog extends React.Component {
           <div>
             url
             <input
+              type="url"
+              name="url"
               value={this.state.url}
               onChange={this.handleBlogFieldChange}
             />
           </div>
-          <button type="submit">tallenna</button>
+          <button type="submit">create</button>
         </form>
       </div>
     )
