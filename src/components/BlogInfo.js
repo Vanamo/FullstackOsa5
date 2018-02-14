@@ -25,13 +25,18 @@ class BlogInfo extends React.Component {
       backgroundColor: 'blue'
     }
 
+    let button = null
+    if (!blog.user || blog.user.username === this.props.user.username) {
+      button = <button onClick={this.handleDelete} style={deleteButton}>delete</button>
+    }
+
     return (
       <div>
         <div>{blog.url}</div>
         <div>{blog.likes} <button onClick={this.handleLike}>like</button></div>
         {showUser}
         <div>
-          <button onClick={this.handleDelete} style={deleteButton}>delete</button>
+          {button}
         </div>
       </div>
     )

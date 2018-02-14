@@ -134,6 +134,7 @@ class App extends React.Component {
           blog={blog}
           updateBlog={this.updateBlog}
           deleteBlog={this.deleteBlog}
+          user={this.state.user}
         />
       )
     )

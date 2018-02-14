@@ -31,6 +31,7 @@ class Blog extends React.Component {
         blog={blog}
         updateBlog={this.props.updateBlog}
         deleteBlog={this.props.deleteBlog}
+        user={this.props.user}
       />
     )
 
