@@ -41,6 +41,33 @@ class App extends React.Component {
     })
   }
 
+
+  updateBlog = (id, likes) => {
+    console.log('update ', id, likes)
+    const blog = this.state.blogs.find(b => b.id === id)
+    const updatedBlog = { ...blog, likes }
+    console.log('blog ', updatedBlog)
+
+    blogService
+      .update(id, updatedBlog)
+      .then(updatedBlog => {
+        this.setState({
+          blogs: this.state.blogs
+            .map(blog => blog.id !== id ? blog : updatedBlog)
+        })
+      })
+      .catch(() => {
+        this.setState({
+          error: `the blog '${blog.title}' has been removed from the server`,
+          blogs: this.state.blogs.filter(b => b.id !== id)
+        })
+        setTimeout(() => {
+          this.setState({ error: null })
+        }, 50000)
+      })
+
+  }
+
   login = async (event) => {
     event.preventDefault()
     try {
@@ -82,10 +109,16 @@ class App extends React.Component {
       </Togglable>
     )
 
+    const showBlogs = () => (
+      this.state.blogs.map(blog =>
+        <Blog key={blog.id} blog={blog} updateBlog={this.updateBlog} />
+      )
+    )
+
     if (this.state.user === null) {
       return (
         <div>
-          <Notification.error message={this.state.error}/>
+          <Notification.error message={this.state.error} />
 
           <LoginForm
             handleSubmit={this.login}
@@ -101,15 +134,13 @@ class App extends React.Component {
       <div>
         <h1>Blogs</h1>
 
-        <Notification.success message={this.state.success}/>
+        <Notification.success message={this.state.success} />
 
         <div>
           <p>{this.state.user.name} logged in
           <button onClick={this.handleLogout}>logout</button></p>
           <h2>blogs</h2>
-          {this.state.blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} />
-          )}
+          {showBlogs()}
         </div>
         <div>
           {createBlog()}
