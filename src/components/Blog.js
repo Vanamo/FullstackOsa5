@@ -10,10 +10,9 @@ class Blog extends React.Component {
   }
 
   handleClick = () => {
-    this.setState = ({
+    this.setState({
       show: !this.state.show
     })
-    console.log(this.state.show)
   }
 
   render() {
@@ -27,7 +26,12 @@ class Blog extends React.Component {
     }
 
     const showBlogInfo = () => (
-      <BlogInfo key={blog.id} blog={blog} updateBlog={this.props.updateBlog}/>
+      <BlogInfo
+        key={blog.id}
+        blog={blog}
+        updateBlog={this.props.updateBlog}
+        deleteBlog={this.props.deleteBlog}
+      />
     )
 
     return (
@@ -35,7 +39,7 @@ class Blog extends React.Component {
         <div onClick={this.handleClick} style={{ cursor: 'pointer' }}>
           {blog.title} {blog.author}
         </div>
-        {!this.state.show && showBlogInfo()}
+        {this.state.show && showBlogInfo()}
       </div>
     )
   }

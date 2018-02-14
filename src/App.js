@@ -23,7 +23,7 @@ class App extends React.Component {
 
   componentDidMount() {
     blogService.getAll().then(blogs =>
-      this.setState({ blogs })
+      this.setState({ blogs: this.sortBlogs(blogs) })
     )
 
     const loggedUserJSON = window.localStorage.getItem('loggedUser')
@@ -43,10 +43,8 @@ class App extends React.Component {
 
 
   updateBlog = (id, likes) => {
-    console.log('update ', id, likes)
     const blog = this.state.blogs.find(b => b.id === id)
     const updatedBlog = { ...blog, likes }
-    console.log('blog ', updatedBlog)
 
     blogService
       .update(id, updatedBlog)
@@ -65,7 +63,19 @@ class App extends React.Component {
           this.setState({ error: null })
         }, 50000)
       })
+    this.setState({
+      blogs: this.sortBlogs(this.state.blogs)
+    })
+  }
 
+  deleteBlog = async (id) => {
+    const blog = this.state.blogs.find(blog => blog.id === id)
+    if (window.confirm(`delete '${blog.title}' by ${blog.author}?`)) {
+      await blogService.deleteBlog(id)
+      this.setState({
+        blogs: this.state.blogs.filter(b => b.id !== id)
+      })
+    }
   }
 
   login = async (event) => {
@@ -99,6 +109,14 @@ class App extends React.Component {
     this.setState({ user: null })
   }
 
+  sortBlogs = (blogs) => {
+    return blogs.sort((a, b) => {
+      if (a.likes < b.likes) return 1
+      if (a.likes > b.likes) return -1
+      return 0
+    })
+  }
+
   render() {
 
     const createBlog = () => (
@@ -111,7 +129,12 @@ class App extends React.Component {
 
     const showBlogs = () => (
       this.state.blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} updateBlog={this.updateBlog} />
+        <Blog
+          key={blog.id}
+          blog={blog}
+          updateBlog={this.updateBlog}
+          deleteBlog={this.deleteBlog}
+        />
       )
     )
 
