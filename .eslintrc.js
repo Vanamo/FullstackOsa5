@@ -33,6 +33,7 @@ module.exports = {
     },
     "globals": {
         "test": true,
+        "it": true,
         "expect": true,
         "describe": true,
         "beforeAll": true,

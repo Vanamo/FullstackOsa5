@@ -38,7 +38,7 @@ class Blog extends React.Component {
 
     return (
       <div style={blogStyle}>
-        <div onClick={this.handleClick} style={{ cursor: 'pointer' }}>
+        <div className="clickMe" onClick={this.handleClick} style={{ cursor: 'pointer' }}>
           {blog.title} {blog.author}
         </div>
         {this.state.show && showBlogInfo()}
@@ -47,11 +47,11 @@ class Blog extends React.Component {
   }
 }
 
-Blog.propTypes = {
-  blog: PropTypes.object.isRequired,
-  updateBlog: PropTypes.func.isRequired,
-  deleteBlog: PropTypes.func.isRequired,
-  user: PropTypes.object.isRequired
-}
+// Blog.propTypes = {
+//   blog: PropTypes.object.isRequired,
+//   updateBlog: PropTypes.func.isRequired,
+//   deleteBlog: PropTypes.func.isRequired,
+//   user: PropTypes.object.isRequired
+// }
 
 export default Blog
