@@ -12,9 +12,6 @@ describe('<Blog />', () => {
   }
 
   let blogComponent
-  let contentDiv
-  let likeDiv
-  const mockHandler = jest.fn()
   beforeEach(() => {
     blogComponent = shallow(
       <Blog 

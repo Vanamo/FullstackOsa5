@@ -3,7 +3,10 @@ module.exports = {
         "es6": true,
         "node": true
     },
-    "extends": "eslint:recommended",
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended"
+    ],
     "rules": {
         "indent": [
             "error",
@@ -34,6 +37,8 @@ module.exports = {
     "globals": {
         "test": true,
         "it": true,
+        "window": true,
+        "jest": true,
         "expect": true,
         "describe": true,
         "beforeAll": true,

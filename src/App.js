@@ -73,7 +73,7 @@ class App extends React.Component {
     if (window.confirm(`delete '${blog.title}' by ${blog.author}?`)) {
       await blogService.deleteBlog(id)
       this.setState({
-        blogs: this.state.blogs.filter(b => b.id !== id)
+        blogs: this.statLoginForme.blogs.filter(b => b.id !== id)
       })
     }
   }
@@ -127,8 +127,8 @@ class App extends React.Component {
       </Togglable>
     )
 
-    const showBlogs = () => (
-      this.state.blogs.map(blog =>
+    const showBlogs = () => {
+      return this.state.blogs.map(blog =>
         <Blog
           key={blog.id}
           blog={blog}
@@ -137,7 +137,7 @@ class App extends React.Component {
           user={this.state.user}
         />
       )
-    )
+    }
 
     if (this.state.user === null) {
       return (
