@@ -1,27 +1,48 @@
 import React from 'react'
+import { connect } from 'react-redux'
 
-const success = ({ message }) => {
-  if (message === null) {
-    return null
+class Notification extends React.Component {
+  render() {
+    const notification = this.props.notification
+    let style = null
+
+    if (notification.style === 'success') {
+      style = {
+        color: 'green',
+        border: 'solid',
+        padding: 10,
+        borderWidth: 1
+      }
+    } else if (notification.style === 'error') {
+      style = {
+        color: 'red',
+        border: 'solid',
+        padding: 10,
+        borderWidth: 1
+      }
+    }
+
+
+    if (notification.message) {
+      return (
+        <div style={style}>
+          {notification.message}
+        </div>
+      )
+    } else {
+      return (
+        <div></div>
+      )
+    }
   }
-
-  return (
-    <div className="success">
-      {message}
-    </div>
-  )
 }
 
-const error = ({ message }) => {
-  if (message === null) {
-    return null
+const mapStateToProps = (state) => {
+  return {
+    notification: state.notification
   }
-
-  return (
-    <div className="error">
-      {message}
-    </div>
-  )
 }
 
-export default { success, error }
+export default connect(
+  mapStateToProps
+)(Notification)

@@ -1,11 +1,13 @@
 import React from 'react'
+import { connect } from 'react-redux'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import CreateBlog from './components/CreateBlog'
-import Notification from './components/Notification'
 import LoginForm from './components/Login'
 import Togglable from './components/Togglable'
+import Notification from './components/Notification'
+import { newSuccessNotification, newErrorNotification } from './reducers/notificationReducer'
 import './index.css'
 
 class App extends React.Component {
@@ -15,9 +17,7 @@ class App extends React.Component {
       blogs: [],
       user: null,
       username: '',
-      password: '',
-      success: null,
-      error: null
+      password: ''
     }
   }
 
@@ -36,9 +36,11 @@ class App extends React.Component {
 
   helpCreateBlog = (newBlog) => {
     this.setState({
-      blogs: this.state.blogs.concat(newBlog),
-      success: `a new blog ${newBlog.title} by ${newBlog.author} added`
+      blogs: this.state.blogs.concat(newBlog)
     })
+    this.props.newSuccessNotification(
+      `a new blog ${newBlog.title} by ${newBlog.author} added`, 5
+    )
   }
 
 
@@ -56,12 +58,10 @@ class App extends React.Component {
       })
       .catch(() => {
         this.setState({
-          error: `the blog '${blog.title}' has been removed from the server`,
           blogs: this.state.blogs.filter(b => b.id !== id)
         })
-        setTimeout(() => {
-          this.setState({ error: null })
-        }, 50000)
+        this.props.newErrorNotification(
+          `the blog '${blog.title}' has been removed from the server`, 5)
       })
     this.setState({
       blogs: this.sortBlogs(this.state.blogs)
@@ -91,12 +91,7 @@ class App extends React.Component {
 
       this.setState({ username: '', password: '', user })
     } catch (exception) {
-      this.setState({
-        error: 'Wrong username or password'
-      })
-      setTimeout(() => {
-        this.setState({ error: null })
-      }, 5000)
+      this.props.newErrorNotification('wrong username or password', 5)
     }
   }
 
@@ -142,7 +137,7 @@ class App extends React.Component {
     if (this.state.user === null) {
       return (
         <div>
-          <Notification.error message={this.state.error} />
+          <Notification />
 
           <LoginForm
             handleSubmit={this.login}
@@ -158,7 +153,7 @@ class App extends React.Component {
       <div>
         <h1>Blogs</h1>
 
-        <Notification.success message={this.state.success} />
+        <Notification />
 
         <div>
           <p>{this.state.user.name} logged in
@@ -174,4 +169,8 @@ class App extends React.Component {
   }
 }
 
-export default App
+export default connect(
+  null,
+  { newSuccessNotification,
+    newErrorNotification }
+)(App)
