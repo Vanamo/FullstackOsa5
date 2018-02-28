@@ -1,5 +1,7 @@
 import React from 'react'
-import blogService from '../services/blogs'
+import { connect } from 'react-redux'
+import { newBlog } from '../reducers/blogReducer'
+import { newSuccessNotification } from '../reducers/notificationReducer'
 
 class CreateBlog extends React.Component {
   constructor(props) {
@@ -11,7 +13,7 @@ class CreateBlog extends React.Component {
     }
   }
 
-  addBlog = (event) => {
+  addBlog = async (event) => {
     event.preventDefault()
     const blogObject = {
       title: this.state.title,
@@ -19,23 +21,24 @@ class CreateBlog extends React.Component {
       url: this.state.url
     }
 
-    blogService
-      .create(blogObject)
-      .then(newBlog => {
-        this.props.helpCreateBlog(newBlog)
-        this.setState({
-          title: '',
-          author: '',
-          url: ''
-        })
-      })
+    await this.props.newBlog(blogObject)
+
+    this.props.newSuccessNotification(
+      `a new blog ${newBlog.title} by ${newBlog.author} added`, 5
+    )
+
+    this.setState({
+      title: '',
+      author: '',
+      url: ''
+    })
   }
 
   handleBlogFieldChange = (event) => {
     this.setState({ [event.target.name]: event.target.value })
   }
 
-  render () {
+  render() {
     return (
       <div>
         <h2>Create new blog</h2>
@@ -75,4 +78,7 @@ class CreateBlog extends React.Component {
   }
 }
 
-export default CreateBlog
+export default connect(
+  null,
+  { newBlog, newSuccessNotification }
+)(CreateBlog)

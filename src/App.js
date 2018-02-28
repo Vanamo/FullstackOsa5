@@ -9,22 +9,19 @@ import Togglable from './components/Togglable'
 import Notification from './components/Notification'
 import { newSuccessNotification, newErrorNotification } from './reducers/notificationReducer'
 import { setUser, logoutUser } from './reducers/userReducer'
+import { initializeBlogs } from './reducers/blogReducer'
 import './index.css'
 
 class App extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      blogs: [],
-      username: '',
-      password: ''
-    }
+
+  state = {
+    username: '',
+    password: ''
   }
 
+
   componentDidMount() {
-    blogService.getAll().then(blogs =>
-      this.setState({ blogs: this.sortBlogs(blogs) })
-    )
+    this.props.initializeBlogs()
 
     const loggedUserJSON = window.localStorage.getItem('loggedUser')
     if (loggedUserJSON) {
@@ -34,15 +31,9 @@ class App extends React.Component {
     }
   }
 
-  helpCreateBlog = (newBlog) => {
-    this.setState({
-      blogs: this.state.blogs.concat(newBlog)
-    })
-    this.props.newSuccessNotification(
-      `a new blog ${newBlog.title} by ${newBlog.author} added`, 5
-    )
+  componentWillReceiveProps(newProps) {
+    console.log('n', newProps)
   }
-
 
   updateBlog = (id, likes) => {
     const blog = this.state.blogs.find(b => b.id === id)
@@ -105,14 +96,6 @@ class App extends React.Component {
     this.props.logoutUser()
   }
 
-  sortBlogs = (blogs) => {
-    return blogs.sort((a, b) => {
-      if (a.likes < b.likes) return 1
-      if (a.likes > b.likes) return -1
-      return 0
-    })
-  }
-
   render() {
 
     const createBlog = () => (
@@ -124,7 +107,7 @@ class App extends React.Component {
     )
 
     const showBlogs = () => {
-      return this.state.blogs.map(blog =>
+      return this.props.blogs.map(blog =>
         <Blog
           key={blog.id}
           blog={blog}
@@ -170,14 +153,26 @@ class App extends React.Component {
   }
 }
 
+const sortBlogs = (blogs) => {
+  return blogs.sort((a, b) => {
+    if (a.likes < b.likes) return 1
+    if (a.likes > b.likes) return -1
+    return 0
+  })
+}
+
 const mapStateToProps = (state) => {
   return {
-    user: state.user
+    user: state.user,
+    blogs: sortBlogs(state.blogs)
   }
 }
 
 export default connect(
   mapStateToProps,
-  { newSuccessNotification,
-    newErrorNotification, setUser, logoutUser }
+  {
+    newSuccessNotification,
+    newErrorNotification, setUser, logoutUser,
+    initializeBlogs
+  }
 )(App)
