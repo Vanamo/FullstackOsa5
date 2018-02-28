@@ -8,6 +8,7 @@ import LoginForm from './components/Login'
 import Togglable from './components/Togglable'
 import Notification from './components/Notification'
 import { newSuccessNotification, newErrorNotification } from './reducers/notificationReducer'
+import { setUser, logoutUser } from './reducers/userReducer'
 import './index.css'
 
 class App extends React.Component {
@@ -15,7 +16,6 @@ class App extends React.Component {
     super(props)
     this.state = {
       blogs: [],
-      user: null,
       username: '',
       password: ''
     }
@@ -29,7 +29,7 @@ class App extends React.Component {
     const loggedUserJSON = window.localStorage.getItem('loggedUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
-      this.setState({ user })
+      this.props.setUser({ user })
       blogService.setToken(user.token)
     }
   }
@@ -73,7 +73,7 @@ class App extends React.Component {
     if (window.confirm(`delete '${blog.title}' by ${blog.author}?`)) {
       await blogService.deleteBlog(id)
       this.setState({
-        blogs: this.statLoginForme.blogs.filter(b => b.id !== id)
+        blogs: this.state.blogs.filter(b => b.id !== id)
       })
     }
   }
@@ -89,7 +89,8 @@ class App extends React.Component {
       window.localStorage.setItem('loggedUser', JSON.stringify(user))
       blogService.setToken(user.token)
 
-      this.setState({ username: '', password: '', user })
+      this.setState({ username: '', password: '' })
+      this.props.setUser({ user })
     } catch (exception) {
       this.props.newErrorNotification('wrong username or password', 5)
     }
@@ -101,7 +102,7 @@ class App extends React.Component {
 
   handleLogout = () => {
     window.localStorage.clear()
-    this.setState({ user: null })
+    this.props.logoutUser()
   }
 
   sortBlogs = (blogs) => {
@@ -129,12 +130,12 @@ class App extends React.Component {
           blog={blog}
           updateBlog={this.updateBlog}
           deleteBlog={this.deleteBlog}
-          user={this.state.user}
+          user={this.props.user}
         />
       )
     }
 
-    if (this.state.user === null) {
+    if (this.props.user.username === null) {
       return (
         <div>
           <Notification />
@@ -156,7 +157,7 @@ class App extends React.Component {
         <Notification />
 
         <div>
-          <p>{this.state.user.name} logged in
+          <p>{this.props.user.name} logged in
           <button onClick={this.handleLogout}>logout</button></p>
           <h2>blogs</h2>
           {showBlogs()}
@@ -169,8 +170,14 @@ class App extends React.Component {
   }
 }
 
+const mapStateToProps = (state) => {
+  return {
+    user: state.user
+  }
+}
+
 export default connect(
-  null,
+  mapStateToProps,
   { newSuccessNotification,
-    newErrorNotification }
+    newErrorNotification, setUser, logoutUser }
 )(App)

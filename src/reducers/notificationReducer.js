@@ -4,17 +4,14 @@ const initialState = {
 }
 
 const reducer = (state = initialState, action) => {
-  if (action.type === 'SUCCESS') {
-    const message = action.message
-    const style = action.style
+  const message = action.message
+  const style = action.style
+  switch (action.type) {
+  case 'SUCCESS':
     return { message, style }
-  }
-  if (action.type === 'ERROR') {
-    const message = action.message
-    const style = action.style
+  case 'ERROR':
     return { message, style }
-  }
-  if (action.type === 'HIDE_NOTIFICATION') {
+  case 'HIDE_NOTIFICATION':
     return initialState
   }
   return state
