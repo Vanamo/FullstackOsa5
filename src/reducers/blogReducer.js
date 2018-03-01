@@ -6,13 +6,15 @@ const reducer = (state = [], action) => {
     return action.data
   case 'NEW_BLOG':
     return [...state, action.data]
-  case 'CHANGE_BLOG':
+  case 'CHANGE_BLOG': {
     const changedBlog = action.data.changedBlog
     const id = changedBlog.id
     return state.map(b => b.id !== id ? b : changedBlog)
-  case 'DELETE_BLOG':
+  }
+  case 'DELETE_BLOG': {
     const id_d = action.data.id
     return state.filter(b => b.id !== id_d)
+  }
   }
   return state
 }

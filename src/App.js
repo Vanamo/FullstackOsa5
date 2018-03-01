@@ -1,15 +1,16 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import Blog from './components/Blog'
 import blogService from './services/blogs'
-import loginService from './services/login'
-import CreateBlog from './components/CreateBlog'
 import LoginForm from './components/Login'
-import Togglable from './components/Togglable'
 import Notification from './components/Notification'
 import { newSuccessNotification, newErrorNotification } from './reducers/notificationReducer'
-import { setUser, logoutUser } from './reducers/userReducer'
+import { setUser, loginUser, logoutUser } from './reducers/userReducer'
 import { initializeBlogs, updateBlog, deleteBlog } from './reducers/blogReducer'
+import BlogList from './components/BlogList'
+import { BrowserRouter as Router, Route, Link, Redirect } from 'react-router-dom'
+import Users from './components/Users'
+import { initUsers } from './reducers/allUsersReducer'
+import UserInfo from './components/UserInfo'
 import './index.css'
 
 class App extends React.Component {
@@ -22,6 +23,7 @@ class App extends React.Component {
 
   componentDidMount() {
     this.props.initializeBlogs()
+    this.props.initUsers()
 
     const loggedUserJSON = window.localStorage.getItem('loggedUser')
     if (loggedUserJSON) {
@@ -50,22 +52,17 @@ class App extends React.Component {
     }
   }
 
-  login = async (event) => {
+  login = (event) => {
     event.preventDefault()
-    try {
-      const user = await loginService.login({
-        username: this.state.username,
-        password: this.state.password
-      })
+    const user = ({
+      username: this.state.username,
+      password: this.state.password
+    })
 
-      window.localStorage.setItem('loggedUser', JSON.stringify(user))
-      blogService.setToken(user.token)
+    this.props.loginUser(user)
 
-      this.setState({ username: '', password: '' })
-      this.props.setUser({ user })
-    } catch (exception) {
-      this.props.newErrorNotification('wrong username or password', 5)
-    }
+    this.setState({ username: '', password: '' })
+
   }
 
   handleLoginFieldChange = (event) => {
@@ -79,22 +76,11 @@ class App extends React.Component {
 
   render() {
 
-    const createBlog = () => (
-      <Togglable buttonLabel="create">
-        <CreateBlog />
-      </Togglable>
-    )
-
-    const showBlogs = () => {
-      return this.props.blogs.map(blog =>
-        <Blog
-          key={blog.id}
-          blog={blog}
-          updateBlog={this.updateBlog}
-          deleteBlog={this.deleteBlog}
-          user={this.props.user}
-        />
-      )
+    const userById = (id) => {
+      console.log('allUsers', this.props.allUsers)
+      const user = this.props.allUsers.find(u => u.id === String(id))
+      console.log('u', user)
+      return user
     }
 
     if (this.props.user.username === null) {
@@ -115,35 +101,40 @@ class App extends React.Component {
     return (
       <div>
         <h1>Blogs</h1>
-
-        <Notification />
-
-        <div>
-          <p>{this.props.user.name} logged in
-          <button onClick={this.handleLogout}>logout</button></p>
-          <h2>blogs</h2>
-          {showBlogs()}
-        </div>
-        <div>
-          {createBlog()}
-        </div>
+        <Router>
+          <div>
+            <div>
+              <NavigationMenu />
+              <Notification />
+              <p>{this.props.user.name} logged in
+              <button onClick={this.handleLogout}>logout</button></p>
+            </div>
+            <div>
+              <Route exact path="/" render={() => <BlogList />} />
+              <Route exact path="/users" render={() => <Users />} />
+              <Route exact path="/users/:id" render={({ match }) =>
+                <UserInfo user={userById(match.params.id)} />}
+              />
+            </div>
+          </div>
+        </Router>
       </div>
     )
   }
 }
 
-const sortBlogs = (blogs) => {
-  return blogs.sort((a, b) => {
-    if (a.likes < b.likes) return 1
-    if (a.likes > b.likes) return -1
-    return 0
-  })
-}
+const NavigationMenu = () => (
+  <div>
+    <Link to='/'>blogs</Link> &nbsp;
+    <Link to='/users'>users</Link>
+  </div>
+)
 
 const mapStateToProps = (state) => {
   return {
     user: state.user,
-    blogs: sortBlogs(state.blogs)
+    allUsers: state.allUsers,
+    blogs: state.blogs
   }
 }
 
@@ -151,7 +142,8 @@ export default connect(
   mapStateToProps,
   {
     newSuccessNotification,
-    newErrorNotification, setUser, logoutUser,
+    newErrorNotification, setUser,
+    loginUser, logoutUser, initUsers,
     initializeBlogs, updateBlog, deleteBlog
   }
 )(App)
