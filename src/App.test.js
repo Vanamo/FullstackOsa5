@@ -5,13 +5,15 @@ import Blog from './components/Blog'
 import LoginForm from './components/Login'
 jest.mock('./services/blogs')
 import blogService from './services/blogs'
+import store from './store'
+import { Provider } from 'react-redux'
 
 describe('<App />', () => {
   let app
 
   describe('when user is not logged', () => {
     beforeEach(() => {
-      app = mount(<App />)
+      app = mount(<Provider store={store}><App /></Provider>)
     })
 
     it('only login form is rendered if user not logged in', () => {
@@ -33,7 +35,7 @@ describe('<App />', () => {
       }
       window.localStorage.setItem('loggedUser', JSON.stringify(user))
 
-      app = mount(<App />)
+      app = mount(<Provider store={store}><App /></Provider>)
     })
 
     it('renders all blogs it gets from backend', () => {
