@@ -9,7 +9,7 @@ import Togglable from './components/Togglable'
 import Notification from './components/Notification'
 import { newSuccessNotification, newErrorNotification } from './reducers/notificationReducer'
 import { setUser, logoutUser } from './reducers/userReducer'
-import { initializeBlogs } from './reducers/blogReducer'
+import { initializeBlogs, updateBlog, deleteBlog } from './reducers/blogReducer'
 import './index.css'
 
 class App extends React.Component {
@@ -36,36 +36,17 @@ class App extends React.Component {
   }
 
   updateBlog = (id, likes) => {
-    const blog = this.state.blogs.find(b => b.id === id)
+    const blog = this.props.blogs.find(b => b.id === id)
     const updatedBlog = { ...blog, likes }
 
-    blogService
-      .update(id, updatedBlog)
-      .then(updatedBlog => {
-        this.setState({
-          blogs: this.state.blogs
-            .map(blog => blog.id !== id ? blog : updatedBlog)
-        })
-      })
-      .catch(() => {
-        this.setState({
-          blogs: this.state.blogs.filter(b => b.id !== id)
-        })
-        this.props.newErrorNotification(
-          `the blog '${blog.title}' has been removed from the server`, 5)
-      })
-    this.setState({
-      blogs: this.sortBlogs(this.state.blogs)
-    })
+    this.props.updateBlog(updatedBlog)
   }
 
-  deleteBlog = async (id) => {
-    const blog = this.state.blogs.find(blog => blog.id === id)
+  deleteBlog = (id) => {
+    const blog = this.props.blogs.find(blog => blog.id === id)
     if (window.confirm(`delete '${blog.title}' by ${blog.author}?`)) {
-      await blogService.deleteBlog(id)
-      this.setState({
-        blogs: this.state.blogs.filter(b => b.id !== id)
-      })
+      this.props.deleteBlog(id)
+      this.props.newSuccessNotification(`'${blog.title}' deleted`, 5)
     }
   }
 
@@ -100,9 +81,7 @@ class App extends React.Component {
 
     const createBlog = () => (
       <Togglable buttonLabel="create">
-        <CreateBlog
-          helpCreateBlog={this.helpCreateBlog}
-        />
+        <CreateBlog />
       </Togglable>
     )
 
@@ -173,6 +152,6 @@ export default connect(
   {
     newSuccessNotification,
     newErrorNotification, setUser, logoutUser,
-    initializeBlogs
+    initializeBlogs, updateBlog, deleteBlog
   }
 )(App)
